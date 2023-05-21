@@ -3,70 +3,66 @@ from tkinter import ttk
 import cv2
 import PIL.Image, PIL.ImageTk
 import threading
-
+import camera
 
 RED = []
 GREEN = []
 BLUE = []
 
 # Open the text file for reading
-with open("R_values.txt", "r") as file:
+with open("../R_values.txt", "r") as file:
     # Read the lines from the file
     lines = file.readlines()
-    
+
     # Iterate over the lines
     for line in lines:
         # Split the line by ":"
         parts = line.split(":")
-        
+
         # Extract the numeric value from the second part
         value = float(parts[1].strip())
-        
+
         # Append the value to the tab1 array
         RED.append(value)
-        
-with open("G_values.txt", "r") as file:
+
+with open("../G_values.txt", "r") as file:
     # Read the lines from the file
     lines = file.readlines()
-    
+
     # Iterate over the lines
     for line in lines:
         # Split the line by ":"
         parts = line.split(":")
-        
+
         # Extract the numeric value from the second part
         value = float(parts[1].strip())
-        
+
         # Append the value to the tab1 array
         GREEN.append(value)
-        
-with open("B_values.txt", "r") as file:
+
+with open("../B_values.txt", "r") as file:
     # Read the lines from the file
     lines = file.readlines()
-    
+
     # Iterate over the lines
     for line in lines:
         # Split the line by ":"
         parts = line.split(":")
-        
+
         # Extract the numeric value from the second part
         value = float(parts[1].strip())
-        
+
         # Append the value to the tab1 array
         BLUE.append(value)
-
-
 
 # Initialize the GUI window
 root = tk.Tk()
 root.title("Vision: Gestures Detector")
 root.geometry()
 
-
 # Create a frame to hold the left-side components
 left_frame = ttk.Frame(root, width=400, height=600)
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
 
 # Create the tabs with range sliders and a button in each
 # Create three tabs for the sliders
@@ -78,7 +74,6 @@ tab_control.add(tab1, text="R")
 tab_control.add(tab2, text="G")
 tab_control.add(tab3, text="B")
 tab_control.pack(expand=1, fill="both")
-
 
 # Create labels:
 # tab1 : Red
@@ -104,7 +99,6 @@ tab3_label3 = ttk.Label(tab3, text="S MIN :0")
 tab3_label4 = ttk.Label(tab3, text="S MAX :0")
 tab3_label5 = ttk.Label(tab3, text="V MIN :0")
 tab3_label6 = ttk.Label(tab3, text="V MAX :0")
-
 
 # Create sliders:
 # tab1 : Red
@@ -152,7 +146,6 @@ tab3_slider4.set(BLUE[3])
 tab3_slider5.set(BLUE[4])
 tab3_slider6.set(BLUE[5])
 
-
 # packing to frames
 # tab1: Red
 tab1_label1.pack()
@@ -182,7 +175,7 @@ tab2_slider5.pack()
 tab2_label6.pack()
 tab2_slider6.pack()
 
-#tab 3 : Blue
+# tab 3 : Blue
 tab3_label1.pack()
 tab3_slider1.pack()
 tab3_label2.pack()
@@ -236,7 +229,7 @@ def save_slider_values(tab_num):
         slider4_val = tab3_slider4.get()
         slider5_val = tab3_slider5.get()
         slider6_val = tab3_slider6.get()
-    
+
     with open(file_name, "w") as f:
         f.write(f"R_H_MIN Value: {slider1_val}\n")
         f.write(f"R_H_MAX Value: {slider2_val}\n")
@@ -245,11 +238,10 @@ def save_slider_values(tab_num):
         f.write(f"B_V_MIN Value: {slider5_val}\n")
         f.write(f"B_V_MAX Value: {slider6_val}\n")
 
+
 # Create a function to update each slider label
 
 
-    
-    
 # Create a frame to hold the right-side components
 right_frame = ttk.Frame(root, width=400, height=600)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
@@ -258,23 +250,27 @@ right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 stream_label = ttk.Label(right_frame)
 stream_label.pack(side=tk.TOP, padx=10, pady=10)
 
+
 # Define a function to capture video from the camera and display it in the label
 def update_camera_stream():
-    cap = cv2.VideoCapture(1)
-    
+    cam = camera.Camera()
+
     while True:
-        _, frame = cap.read()
-        frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
-        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        camera.Camera._lower_blue = BLUE[0:3]
+        camera.Camera._upper_blue = BLUE[3:]
+        camera.Camera._lower_green= GREEN[0:3]
+        camera.Camera._upper_green = GREEN[3:]
+        camera.Camera._lower_red = RED[0:3]
+        camera.Camera._upper_red = RED[3:]
+
+        cv2image = cv2.cvtColor(cam.get_frames(), cv2.COLOR_BGR2RGBA)
         img = PIL.Image.fromarray(cv2image)
         imgtk = PIL.ImageTk.PhotoImage(image=img)
         stream_label.imgtk = imgtk
         stream_label.configure(image=imgtk)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-            
-    cap.release()
-    cv2.destroyAllWindows()
+
 
 # Start the camera stream in a new thread
 

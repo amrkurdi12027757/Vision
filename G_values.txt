@@ -1,6 +1,6 @@
-R_H_MIN Value: 0
-R_H_MAX Value: 0
-G_S_MIN Value: 0
-G_S_MAX Value: 0
-B_V_MIN Value: 0
-B_V_MAX Value: 0
+R_H_MIN Value: 45
+R_H_MAX Value: 90
+G_S_MIN Value: 50
+G_S_MAX Value: 255
+B_V_MIN Value: 120
+B_V_MAX Value: 150
